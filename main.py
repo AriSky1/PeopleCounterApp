@@ -67,8 +67,12 @@ def gen_frames():
                         # Prints centroid text in order to double check later on
                         # cv2.putText(image, str(cx) + "," + str(cy), (cx + 10, cy + 10), cv2.FONT_HERSHEY_SIMPLEX,.3, (0, 0, 255), 1)
                         # cv2.drawMarker(image, (cx, cy), (0, 255, 255), cv2.MARKER_CROSS, markerSize=8, thickness=3,line_type=cv2.LINE_8)
-        #cv2.imshow("countours", image)
+        cv2.putText(img=image, text=str(count), org = (1050, 120),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 3.0,color=(125, 246, 55),thickness = 3)
+        cv2.putText(img=image, text="Shibuya, Tokyo", org=(1030, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=0.9,
+                    color=(125, 246, 55), thickness=3)
+
         frame = cv2.imencode('.jpg', image)[1].tobytes()
+
 
 
         yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
