@@ -13,13 +13,12 @@ app = Flask(__name__)
 sub = cv2.createBackgroundSubtractorMOG2()  # create background subtractor
 
 
-# Main function here
-@app.route('/')
-def index():
-    return render_template('index.html')
+count = 0
+
+
 
 def gen_frames():
-
+    # global count
     url = "https://www.youtube.com/watch?v=lMOtsTGef38"
     # url = "https://youtu.be/lMOtsTGef38"
     video = pafy.new(url)
@@ -27,17 +26,14 @@ def gen_frames():
     cap = cv2.VideoCapture(best.url)
 
 
-
-
-
-
-
     while(cap.isOpened()):
+        global count
         ret, frame = cap.read()  # import image
         if not ret: #if vid finish repeat
             # frame = cv2.VideoCapture("768x576.avi")
             continue
         if ret:  # if there is a frame continue with code
+            # global count
             image = cv2.resize(frame, (0, 0), None, 1, 1)  # resize image
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
             fgmask = sub.apply(gray)  # uses the background subtraction
@@ -47,6 +43,10 @@ def gen_frames():
             dilation = cv2.dilate(opening, kernel)
             retvalbin, bins = cv2.threshold(dilation, 220, 255, cv2.THRESH_BINARY)  # removes the shadows
             contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            # print(len(contours))
+
+            count = len(contours)
+
             minarea = 400
             maxarea = 50000
             for i in range(len(contours)):  # cycles through all contours in current frame
@@ -71,14 +71,20 @@ def gen_frames():
         frame = cv2.imencode('.jpg', image)[1].tobytes()
 
 
-
-
-
-
         yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         key = cv2.waitKey(20)
         if key == 27:
            break
+
+
+
+
+
+
+# Main function here
+@app.route('/')
+def index():
+    return render_template('index.html', count=count)
 
 
 @app.route('/video_feed')
