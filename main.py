@@ -12,9 +12,9 @@ app = Flask(__name__)
 
 sub = cv2.createBackgroundSubtractorMOG2()  # create background subtractor
 
-
-count = 0
-
+# initialize the HOG descriptor/person detector
+hog = cv2.HOGDescriptor()
+hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 
 def gen_frames():
@@ -27,17 +27,17 @@ def gen_frames():
 
 
     while(cap.isOpened()):
-        global count
         ret, frame = cap.read()  # import image
-        if not ret: #if vid finish repeat
-            # frame = cv2.VideoCapture("768x576.avi")
+        # print(frame.shape) # (720, 1280, 3)
+        if not ret: #if vid finish repeat, ret for return (boolean)
             continue
         if ret:  # if there is a frame continue with code
-            # global count
-            image = cv2.resize(frame, (0, 0), None, 1, 1)  # resize image
+            image = cv2.resize(frame, (0, 0), None, 1, 1)
+            # print(image.shape) # (720, 1280, 3)
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
-            fgmask = sub.apply(gray)  # uses the background subtraction
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))  # kernel to apply to the morphology
+            # print(gray.shape) # (720, 1280)
+            fgmask = sub.apply(gray)  # subtraction between the current frame and a background model, containing the static part of the scene
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6, 6))  # kernel to apply to the morphology
             closing = cv2.morphologyEx(fgmask, cv2.MORPH_CLOSE, kernel)
             opening = cv2.morphologyEx(closing, cv2.MORPH_OPEN, kernel)
             dilation = cv2.dilate(opening, kernel)
@@ -67,11 +67,12 @@ def gen_frames():
                         # Prints centroid text in order to double check later on
                         # cv2.putText(image, str(cx) + "," + str(cy), (cx + 10, cy + 10), cv2.FONT_HERSHEY_SIMPLEX,.3, (0, 0, 255), 1)
                         # cv2.drawMarker(image, (cx, cy), (0, 255, 255), cv2.MARKER_CROSS, markerSize=8, thickness=3,line_type=cv2.LINE_8)
-        cv2.putText(img=image, text=str(count), org = (1050, 120),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 3.0,color=(125, 246, 55),thickness = 3)
+        cv2.putText(img=image, text=str(count), org = (1030, 120),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 3.0,color=(125, 246, 55),thickness = 3)
         cv2.putText(img=image, text="Shibuya, Tokyo", org=(1030, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=0.9,
-                    color=(125, 246, 55), thickness=3)
+                    color=(125, 246, 55), thickness=1)
 
         frame = cv2.imencode('.jpg', image)[1].tobytes()
+        # frame = cv2.imencode('.jpg', fgmask)[1].tobytes()
 
 
 
@@ -88,7 +89,7 @@ def gen_frames():
 # Main function here
 @app.route('/')
 def index():
-    return render_template('index.html', count=count)
+    return render_template('index.html')
 
 
 @app.route('/video_feed')
