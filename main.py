@@ -29,6 +29,9 @@ def gen_frames():
 
 
 
+
+
+
     while(cap.isOpened()):
         ret, frame = cap.read()  # import image
         if not ret: #if vid finish repeat
@@ -60,6 +63,7 @@ def gen_frames():
                         x, y, w, h = cv2.boundingRect(cnt)
                         # creates a rectangle around contour
                         cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
                         # Prints centroid text in order to double check later on
                         # cv2.putText(image, str(cx) + "," + str(cy), (cx + 10, cy + 10), cv2.FONT_HERSHEY_SIMPLEX,.3, (0, 0, 255), 1)
                         # cv2.drawMarker(image, (cx, cy), (0, 255, 255), cv2.MARKER_CROSS, markerSize=8, thickness=3,line_type=cv2.LINE_8)
