@@ -9,6 +9,13 @@ from cap_from_youtube import cap_from_youtube
 # Declare a Flask app
 app = Flask(__name__)
 
+url = "https://www.youtube.com/watch?v=lMOtsTGef38"
+# url = "https://youtu.be/lMOtsTGef38"
+video = pafy.new(url)
+best = video.getbest(preftype="mp4")
+cap = cv2.VideoCapture(best.url)
+
+
 
 sub = cv2.createBackgroundSubtractorMOG2()  # create background subtractor
 
@@ -17,13 +24,9 @@ hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 
+
 def gen_frames():
-    # global count
-    url = "https://www.youtube.com/watch?v=lMOtsTGef38"
-    # url = "https://youtu.be/lMOtsTGef38"
-    video = pafy.new(url)
-    best = video.getbest(preftype="mp4")
-    cap = cv2.VideoCapture(best.url)
+
 
 
     while(cap.isOpened()):
@@ -32,6 +35,7 @@ def gen_frames():
         if not ret: #if vid finish repeat, ret for return (boolean)
             continue
         if ret:  # if there is a frame continue with code
+
             image = cv2.resize(frame, (0, 0), None, 1, 1)
             # print(image.shape) # (720, 1280, 3)
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
@@ -45,12 +49,16 @@ def gen_frames():
             contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             # print(len(contours))
 
-            count = len(contours)
+            # count = len(contours)
 
             minarea = 400
             maxarea = 50000
+
+            count=1
             for i in range(len(contours)):  # cycles through all contours in current frame
+
                 if hierarchy[0, i, 3] == -1:  # using hierarchy to only count parent contours (contours not within others)
+
                     area = cv2.contourArea(contours[i])  # area of contour
                     if minarea < area < maxarea:  # area threshold for contour
                         # calculating centroids of contours
@@ -63,6 +71,9 @@ def gen_frames():
                         x, y, w, h = cv2.boundingRect(cnt)
                         # creates a rectangle around contour
                         cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                        count+=1
+
+
 
                         # Prints centroid text in order to double check later on
                         # cv2.putText(image, str(cx) + "," + str(cy), (cx + 10, cy + 10), cv2.FONT_HERSHEY_SIMPLEX,.3, (0, 0, 255), 1)
