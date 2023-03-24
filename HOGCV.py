@@ -8,13 +8,21 @@ from cap_from_youtube import cap_from_youtube
 import numpy as np
 from imutils.object_detection import non_max_suppression
 
+from flask import Flask, request, render_template, Response
+import cv2
+import pafy
+from datetime import datetime, timedelta
+import pytz
+import time
 
 # Declare a Flask app
 app = Flask(__name__)
 
-url = "https://www.youtube.com/watch?v=lMOtsTGef38"
-# url = "https://www.youtube.com/watch?v=gC4dJGHWwDU"
+
+url = "https://www.youtube.com/watch?v=gC4dJGHWwDU"
+url = "https://www.youtube.com/watch?v=3kPH7kTphnE"
 # url = "https://www.youtube.com/watch?v=Cp2Ku8sUV_4"
+url = "https://www.youtube.com/watch?v=iih_dQTXFjI"
 video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 cap = cv2.VideoCapture(best.url)
@@ -26,41 +34,44 @@ hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 def gen_frames():
-
-
-
+    prev_frame_time = 0
+    new_frame_time = 0
     while(cap.isOpened()):
         ret, frame = cap.read()  # import image
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        # width = frame.shape[1]
-        # max_width = 600
-        # if width > max_width:
-        #     frame = imutils.resize(frame, width=max_width)
-        #     print(frame.shape)
+        image = cv2.resize(frame, (0, 0), None, 1, 1)
+        # image = imutils.resize(image, width=min(600, image.shape[1]))
+        frame = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
 
-        # pedestrians, weights = hog.detectMultiScale(frame, winStride=(0, 0),padding=(8, 8), scale=1.5)
+
+        # pedestrians, weights = hog.detectMultiScale(frame, winStride=(4,4),padding=(4, 4), scale=1.5)
         pedestrians, weights = hog.detectMultiScale(frame)
         pedestrians = np.array([[x, y, x + w, y + h] for (x, y, w, h) in pedestrians])
 
-
-
-
-
-
         count = 0
-        #  Draw bounding box over detected pedestrians
+        pedestrians = non_max_suppression(pedestrians, probs=None, overlapThresh=0.8)
         for x, y, w, h in pedestrians:
-            cv2.rectangle(frame, (x, y), (w, h), (0, 0, 100), 2)
-            cv2.rectangle(frame, (x, y - 20), (w, y), (0, 0, 255), -1)
-            cv2.putText(frame, f'P{count}', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+            cv2.rectangle(image, (x, y), (w, h), (0, 0, 100), 2)
+            cv2.rectangle(image, (x, y - 20), (w, y), (0, 0, 255), -1)
+            cv2.putText(image, f'P{count}', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
             count += 1
-        pedestrians = non_max_suppression(pedestrians, probs=None, overlapThresh=0.5)
-        print(pedestrians)
-        cv2.putText(img=frame, text=str(count), org =(520, 65),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 2.0,color=(0, 0, 255),thickness = 2)
 
 
-        # frame = cv2.imencode('.jpg', frame)[1].tobytes()
-        frame = cv2.imencode('.jpg', frame)[1].tobytes()
+
+
+
+
+        new_frame_time = time.time()
+        fps = 1 / (new_frame_time - prev_frame_time)
+        prev_frame_time = new_frame_time
+        fps = int(fps)
+        fps = str(fps)
+        cv2.putText(img=frame, text=str(count), org =(1500, 65),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 8.0,color=(0, 0, 255),thickness = 2)
+        cv2.putText(img=image, text=str(count), org = (950, 160),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 5.0,color=(125, 246, 55),thickness = 9)
+        cv2.putText(img=image, text="Shibuya Scramble Crossing", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,color=(125, 246, 55), thickness=3)
+        cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2,cv2.LINE_AA)
+        cv2.putText(img=image, text=(str(fps)+' fps'), org=(600, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
+
+        frame = cv2.imencode('.jpg', image)[1].tobytes()
 
 
 

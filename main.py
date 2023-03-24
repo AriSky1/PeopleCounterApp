@@ -9,10 +9,11 @@ import time
 app = Flask(__name__)
 
 
-url = "https://www.youtube.com/watch?v=lMOtsTGef38"
+url = "https://www.youtube.com/watch?v=3kPH7kTphnE"
 # url = "https://www.youtube.com/watch?v=SsXZLfaeGR8"
 # url="https://www.youtube.com/watch?v=1-iS7LArMPA"
 # url = "https://youtu.be/lMOtsTGef38"
+url = "https://www.youtube.com/watch?v=iih_dQTXFjI"
 video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 cap = cv2.VideoCapture(best.url)
@@ -35,17 +36,21 @@ x= datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")
 
 # sub.setNMixtures(8) #Sets the number of gaussian components in the background model.
 
-# sub.setShadowThreshold(0.9)
-#
-sub.setShadowValue(12)
 
+#
+
+
+#video 1
+sub.setShadowValue(40)
 sub.setVarThresholdGen(50)
 
+# # video 2
+# # sub.setShadowValue(40)
+# sub.setVarThresholdGen(100)
+# # sub.setShadowThreshold(0.7)
 
 def gen_frames():
     prev_frame_time = 0
-
-    # used to record the time at which we processed current frame
     new_frame_time = 0
 
     while(cap.isOpened()):
@@ -57,47 +62,57 @@ def gen_frames():
             continue
         if ret:
 
+#shibuya crossing video 1
+            # image = cv2.resize(frame, (0, 0), None, 1, 1)
+            # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
+            # curr_img = sub.apply(gray)  # subtraction between the current frame and a background model, containing the static part of the scene
+            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))  # low quality vid> no kernel!
+            # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_CLOSE, kernel) #dots inside
+            # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_OPEN, kernel, iterations=1) # dots outside
+            # # curr_img = cv2.erode(curr_img, kernel,iterations=5)
+            # # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_BLACKHAT, kernel)
+            # # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_GRADIENT, kernel) #shaped outlines
+            # curr_img = cv2.dilate(curr_img, kernel)
+            # # ret, curr_img = cv2.threshold(curr_img, 100, 140, cv2.THRESH_BINARY)  # removes the shadows
+            # # curr_img = cv2.adaptiveThreshold(curr_img,200, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)  #
+            # # curr_img = cv2.GaussianBlur(curr_img, (1, 1), 0)
+            # # ret2, curr_img = cv2.threshold(curr_img, 1000, 2000, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            # contours, hierarchy = cv2.findContours(curr_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+
+#shibuya video 2
+
             image = cv2.resize(frame, (0, 0), None, 1, 1)
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
-            curr_img = sub.apply(gray)  # subtraction between the current frame and a background model, containing the static part of the scene
+            curr_img = sub.apply(
+                gray)  # subtraction between the current frame and a background model, containing the static part of the scene
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))  # low quality vid> no kernel!
-            curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_CLOSE, kernel) #dots inside
-            curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_OPEN, kernel, iterations=1) # dots outside
+            curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_CLOSE, kernel)  # dots inside
+            curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_OPEN, kernel, iterations=1)  # dots outside
             # curr_img = cv2.erode(curr_img, kernel,iterations=5)
             # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_BLACKHAT, kernel)
             # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_GRADIENT, kernel) #shaped outlines
             curr_img = cv2.dilate(curr_img, kernel)
-            # ret, curr_img = cv2.threshold(curr_img, 100, 140, cv2.THRESH_BINARY)  # removes the shadows
+            ret, curr_img = cv2.threshold(curr_img, 100, 150, cv2.THRESH_BINARY)  # removes the shadows
             # curr_img = cv2.adaptiveThreshold(curr_img,200, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)  #
             # curr_img = cv2.GaussianBlur(curr_img, (1, 1), 0)
             # ret2, curr_img = cv2.threshold(curr_img, 1000, 2000, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
             contours, hierarchy = cv2.findContours(curr_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+
             new_frame_time = time.time()
-
-            # Calculating the fps
-
-            # fps will be number of frame processed in given time frame
-            # since their will be most of time error of 0.001 second
-            # we will be subtracting it to get more accurate result
             fps = 1 / (new_frame_time - prev_frame_time)
             prev_frame_time = new_frame_time
-
-            # converting the fps into integer
             fps = int(fps)
-
-            # converting the fps to string so that we can display it on frame
-            # by using putText function
             fps = str(fps)
 
 
 
-
-
-
-
-            minarea = 25
+            minarea = 80
             maxarea = 300
+
+            # minarea = 1000
+            # maxarea = 5000
 
             count=1
             for i in range(len(contours)):  # cycles through all contours in current frame
@@ -115,18 +130,18 @@ def gen_frames():
                         # x,y is top left corner and w,h is width and height
                         x, y, w, h = cv2.boundingRect(cnt)
                         # creates a rectangle around contour
-                        # cv2.rectangle(curr_img, (x, y), (x + w, y + h), (255, 255, 255), 1) #white
-                        # cv2.rectangle(image, (x, y), (x + w, y + h), (125, 246, 55), 2)  # green
+                        # cv2.rectangle(image, (x, y), (x + w, y + h), (255, 255, 255), 1) #white
+                        cv2.rectangle(image, (x, y), (x + w, y + h), (125, 246, 55), 2)  # green
                         count+=1
 
 
                         # cv2.putText(image, str(cx) + "," + str(cy), (cx + 10, cy + 10), cv2.FONT_HERSHEY_SIMPLEX,.3, (125, 246, 55), 1)
-                        cv2.drawMarker(image, (cx, cy), (125, 246, 55), cv2.MARKER_CROSS, markerSize=8, thickness=3,line_type=cv2.LINE_8)
+                        # cv2.drawMarker(image, (cx, cy), (125, 246, 55), cv2.MARKER_CROSS, markerSize=8, thickness=3,line_type=cv2.LINE_8)
 
         cv2.putText(img=image, text=str(count), org = (950, 160),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 5.0,color=(125, 246, 55),thickness = 9)
-        cv2.putText(img=image, text="Shibuya Scramble Crossing", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
+        cv2.putText(img=image, text="Shibuya Scramble Crossing", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,color=(125, 246, 55), thickness=3)
         cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2,cv2.LINE_AA)
-        cv2.putText(img=image, text=(str(fps)+' fps'), org=(570, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
+        cv2.putText(img=image, text=(str(fps)+' fps'), org=(600, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
 
         frame = cv2.imencode('.jpg', image)[1].tobytes()
         # frame = cv2.imencode('.jpg', curr_img)[1].tobytes()
