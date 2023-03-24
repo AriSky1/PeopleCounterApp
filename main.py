@@ -23,7 +23,7 @@ cap = cv2.VideoCapture(best.url)
 sub = cv2.createBackgroundSubtractorMOG2(detectShadows=True)
 
 
-
+x= datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")
 # sub.setBackgroundRatio(0.6) #Sets the "background ratio" parameter of the algorithm.
 
 #This parameter defines the number of samples needed to accept to prove the component exists.
@@ -124,9 +124,9 @@ def gen_frames():
                         cv2.drawMarker(image, (cx, cy), (125, 246, 55), cv2.MARKER_CROSS, markerSize=8, thickness=3,line_type=cv2.LINE_8)
 
         cv2.putText(img=image, text=str(count), org = (950, 160),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 5.0,color=(125, 246, 55),thickness = 9)
-        cv2.putText(img=image, text="Shibuya Scramble Crossing", org=(800, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
-        cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo'))), (20, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2,cv2.LINE_AA)
-        cv2.putText(img=image, text=(str(fps)+' fps'), org=(650, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
+        cv2.putText(img=image, text="Shibuya Scramble Crossing", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
+        cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2,cv2.LINE_AA)
+        cv2.putText(img=image, text=(str(fps)+' fps'), org=(570, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
 
         frame = cv2.imencode('.jpg', image)[1].tobytes()
         # frame = cv2.imencode('.jpg', curr_img)[1].tobytes()
