@@ -14,14 +14,12 @@ app = Flask(__name__)
 
 url = "https://www.youtube.com/watch?v=lMOtsTGef38"
 # url = "https://www.youtube.com/watch?v=gC4dJGHWwDU"
-url = "https://www.youtube.com/watch?v=Cp2Ku8sUV_4"
+# url = "https://www.youtube.com/watch?v=Cp2Ku8sUV_4"
 video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 cap = cv2.VideoCapture(best.url)
 
 
-
-sub = cv2.createBackgroundSubtractorMOG2()  # create background subtractor
 
 # initialize the HOG descriptor/person detector
 hog = cv2.HOGDescriptor()
@@ -34,14 +32,19 @@ def gen_frames():
     while(cap.isOpened()):
         ret, frame = cap.read()  # import image
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        width = frame.shape[1]
-        max_width = 600
-        if width > max_width:
-            frame = imutils.resize(frame, width=max_width)
-            print(frame.shape)
+        # width = frame.shape[1]
+        # max_width = 600
+        # if width > max_width:
+        #     frame = imutils.resize(frame, width=max_width)
+        #     print(frame.shape)
 
-        pedestrians, weights = hog.detectMultiScale(frame, winStride=(0, 0),padding=(8, 8), scale=1.05)
+        # pedestrians, weights = hog.detectMultiScale(frame, winStride=(0, 0),padding=(8, 8), scale=1.5)
+        pedestrians, weights = hog.detectMultiScale(frame)
         pedestrians = np.array([[x, y, x + w, y + h] for (x, y, w, h) in pedestrians])
+
+
+
+
 
 
         count = 0
@@ -56,8 +59,8 @@ def gen_frames():
         cv2.putText(img=frame, text=str(count), org =(520, 65),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 2.0,color=(0, 0, 255),thickness = 2)
 
 
+        # frame = cv2.imencode('.jpg', frame)[1].tobytes()
         frame = cv2.imencode('.jpg', frame)[1].tobytes()
-        # frame = cv2.imencode('.jpg', fgmask)[1].tobytes()
 
 
 
