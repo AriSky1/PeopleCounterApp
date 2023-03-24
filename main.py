@@ -4,7 +4,7 @@ import cv2
 import pafy
 from datetime import datetime, timedelta
 import pytz
-
+import time
 
 app = Flask(__name__)
 
@@ -16,9 +16,6 @@ url = "https://www.youtube.com/watch?v=lMOtsTGef38"
 video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 cap = cv2.VideoCapture(best.url)
-
-fps = cap.get(cv2.CAP_PROP_FPS)
-
 
 
 # create background subtractor
@@ -46,10 +43,15 @@ sub.setVarThresholdGen(50)
 
 
 def gen_frames():
+    prev_frame_time = 0
+
+    # used to record the time at which we processed current frame
+    new_frame_time = 0
 
     while(cap.isOpened()):
         ret, frame = cap.read()
         # print(frame.shape) # (720, 1280, 3)
+
 
         if not ret:
             continue
@@ -71,8 +73,31 @@ def gen_frames():
             # ret2, curr_img = cv2.threshold(curr_img, 1000, 2000, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
             contours, hierarchy = cv2.findContours(curr_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-            minarea = 50
-            maxarea = 600
+            new_frame_time = time.time()
+
+            # Calculating the fps
+
+            # fps will be number of frame processed in given time frame
+            # since their will be most of time error of 0.001 second
+            # we will be subtracting it to get more accurate result
+            fps = 1 / (new_frame_time - prev_frame_time)
+            prev_frame_time = new_frame_time
+
+            # converting the fps into integer
+            fps = int(fps)
+
+            # converting the fps to string so that we can display it on frame
+            # by using putText function
+            fps = str(fps)
+
+
+
+
+
+
+
+            minarea = 25
+            maxarea = 300
 
             count=1
             for i in range(len(contours)):  # cycles through all contours in current frame
@@ -90,17 +115,18 @@ def gen_frames():
                         # x,y is top left corner and w,h is width and height
                         x, y, w, h = cv2.boundingRect(cnt)
                         # creates a rectangle around contour
-                        # cv2.rectangle(curr_img, (x, y), (x + w, y + h), (255, 255, 255), 2) #white
-                        cv2.rectangle(image, (x, y), (x + w, y + h), (125, 246, 55), 2)  # green
+                        # cv2.rectangle(curr_img, (x, y), (x + w, y + h), (255, 255, 255), 1) #white
+                        # cv2.rectangle(image, (x, y), (x + w, y + h), (125, 246, 55), 2)  # green
                         count+=1
 
 
-                        # cv2.putText(image, str(cx) + "," + str(cy), (cx + 10, cy + 10), cv2.FONT_HERSHEY_SIMPLEX,.3, (0, 0, 255), 1)
-                        # cv2.drawMarker(image, (cx, cy), (0, 255, 255), cv2.MARKER_CROSS, markerSize=8, thickness=3,line_type=cv2.LINE_8)
+                        # cv2.putText(image, str(cx) + "," + str(cy), (cx + 10, cy + 10), cv2.FONT_HERSHEY_SIMPLEX,.3, (125, 246, 55), 1)
+                        cv2.drawMarker(image, (cx, cy), (125, 246, 55), cv2.MARKER_CROSS, markerSize=8, thickness=3,line_type=cv2.LINE_8)
+
         cv2.putText(img=image, text=str(count), org = (950, 160),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 5.0,color=(125, 246, 55),thickness = 9)
-        cv2.putText(img=image, text="Shibuya, Tokyo", org=(1010, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
+        cv2.putText(img=image, text="Shibuya Scramble Crossing", org=(800, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
         cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo'))), (20, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2,cv2.LINE_AA)
-        cv2.putText(img=image, text=(str(fps)+' fps'), org=(700, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
+        cv2.putText(img=image, text=(str(fps)+' fps'), org=(650, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
 
         frame = cv2.imencode('.jpg', image)[1].tobytes()
         # frame = cv2.imencode('.jpg', curr_img)[1].tobytes()
