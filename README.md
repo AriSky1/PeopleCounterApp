@@ -20,5 +20,5 @@ The limits:
 - works better on same size objects
 - sensitive to car flashes, rain, night lights
 - hard to parameter
-- works only under certain conditions
-
+- works only under certain conditions (clear weather, daytime)
+- average precision but might be ok for this task
