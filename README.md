@@ -15,7 +15,7 @@ and fully visible
 Choice : Background substractor method with MOG2 (OpenCV)
 
 
-limits:
+The limits:
 <br>
 - works better on same size objects
 - sensitive to car flashes, rain, night lights
