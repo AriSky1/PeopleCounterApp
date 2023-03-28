@@ -19,10 +19,7 @@ import time
 app = Flask(__name__)
 
 
-url = "https://www.youtube.com/watch?v=gC4dJGHWwDU"
-url = "https://www.youtube.com/watch?v=3kPH7kTphnE"
-# url = "https://www.youtube.com/watch?v=Cp2Ku8sUV_4"
-url = "https://www.youtube.com/watch?v=iih_dQTXFjI"
+url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc'
 video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 cap = cv2.VideoCapture(best.url)
@@ -43,8 +40,8 @@ def gen_frames():
         frame = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
 
 
-        # pedestrians, weights = hog.detectMultiScale(frame, winStride=(4,4),padding=(4, 4), scale=1.5)
-        pedestrians, weights = hog.detectMultiScale(frame)
+        pedestrians, weights = hog.detectMultiScale(frame, winStride=(4,4),padding=(4, 4), scale=1.5)
+        # pedestrians, weights = hog.detectMultiScale(frame)
         pedestrians = np.array([[x, y, x + w, y + h] for (x, y, w, h) in pedestrians])
 
         count = 0

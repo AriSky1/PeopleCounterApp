@@ -9,18 +9,15 @@ import time
 app = Flask(__name__)
 
 
-url = "https://www.youtube.com/watch?v=3kPH7kTphnE"
-# url = "https://www.youtube.com/watch?v=SsXZLfaeGR8"
-# url="https://www.youtube.com/watch?v=1-iS7LArMPA"
-# url = "https://youtu.be/lMOtsTGef38"
-url = "https://www.youtube.com/watch?v=iih_dQTXFjI"
+
+url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc'
+
 video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 cap = cv2.VideoCapture(best.url)
 
 
-# create background subtractor
-# sub = cv2.createBackgroundSubtractorMOG()
+# background subtractor
 sub = cv2.createBackgroundSubtractorMOG2(detectShadows=True)
 
 
@@ -44,10 +41,6 @@ x= datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")
 sub.setShadowValue(40)
 sub.setVarThresholdGen(50)
 
-# # video 2
-# # sub.setShadowValue(40)
-# sub.setVarThresholdGen(100)
-# # sub.setShadowThreshold(0.7)
 
 def gen_frames():
     prev_frame_time = 0
@@ -62,42 +55,23 @@ def gen_frames():
             continue
         if ret:
 
-#shibuya crossing video 1
-            # image = cv2.resize(frame, (0, 0), None, 1, 1)
-            # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
-            # curr_img = sub.apply(gray)  # subtraction between the current frame and a background model, containing the static part of the scene
-            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))  # low quality vid> no kernel!
-            # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_CLOSE, kernel) #dots inside
-            # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_OPEN, kernel, iterations=1) # dots outside
-            # # curr_img = cv2.erode(curr_img, kernel,iterations=5)
-            # # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_BLACKHAT, kernel)
-            # # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_GRADIENT, kernel) #shaped outlines
-            # curr_img = cv2.dilate(curr_img, kernel)
-            # # ret, curr_img = cv2.threshold(curr_img, 100, 140, cv2.THRESH_BINARY)  # removes the shadows
-            # # curr_img = cv2.adaptiveThreshold(curr_img,200, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)  #
-            # # curr_img = cv2.GaussianBlur(curr_img, (1, 1), 0)
-            # # ret2, curr_img = cv2.threshold(curr_img, 1000, 2000, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-            # contours, hierarchy = cv2.findContours(curr_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-
-#shibuya video 2
-
+# shibuya crossing video 1
             image = cv2.resize(frame, (0, 0), None, 1, 1)
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
-            curr_img = sub.apply(
-                gray)  # subtraction between the current frame and a background model, containing the static part of the scene
+            curr_img = sub.apply(gray)  # subtraction between the current frame and a background model, containing the static part of the scene
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))  # low quality vid> no kernel!
-            curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_CLOSE, kernel)  # dots inside
-            curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_OPEN, kernel, iterations=1)  # dots outside
+            curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_CLOSE, kernel) #dots inside
+            curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_OPEN, kernel, iterations=1) # dots outside
             # curr_img = cv2.erode(curr_img, kernel,iterations=5)
             # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_BLACKHAT, kernel)
             # curr_img = cv2.morphologyEx(curr_img, cv2.MORPH_GRADIENT, kernel) #shaped outlines
             curr_img = cv2.dilate(curr_img, kernel)
-            ret, curr_img = cv2.threshold(curr_img, 100, 150, cv2.THRESH_BINARY)  # removes the shadows
+            # ret, curr_img = cv2.threshold(curr_img, 100, 140, cv2.THRESH_BINARY)  # removes the shadows
             # curr_img = cv2.adaptiveThreshold(curr_img,200, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)  #
             # curr_img = cv2.GaussianBlur(curr_img, (1, 1), 0)
             # ret2, curr_img = cv2.threshold(curr_img, 1000, 2000, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
             contours, hierarchy = cv2.findContours(curr_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
 
 
             new_frame_time = time.time()
@@ -111,8 +85,6 @@ def gen_frames():
             minarea = 80
             maxarea = 300
 
-            # minarea = 1000
-            # maxarea = 5000
 
             count=1
             for i in range(len(contours)):  # cycles through all contours in current frame
@@ -130,7 +102,7 @@ def gen_frames():
                         # x,y is top left corner and w,h is width and height
                         x, y, w, h = cv2.boundingRect(cnt)
                         # creates a rectangle around contour
-                        # cv2.rectangle(image, (x, y), (x + w, y + h), (255, 255, 255), 1) #white
+                        # cv2.rectangle(curr_img, (x, y), (x + w, y + h), (255, 255, 255), 1) #white
                         cv2.rectangle(image, (x, y), (x + w, y + h), (125, 246, 55), 2)  # green
                         count+=1
 
