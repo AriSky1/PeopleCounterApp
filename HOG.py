@@ -15,18 +15,25 @@ from datetime import datetime, timedelta
 import pytz
 import time
 
-# Declare a Flask app
+
 app = Flask(__name__)
 
 
-url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc'
+# url = 'https://www.youtube.com/watch?v=T5uyWFmW-vg' #short video japan moving
+# url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya crossing static
+# url = 'https://www.youtube.com/watch?v=3kPH7kTphnE' #street static
+# url = 'https://www.youtube.com/watch?v=1-iS7LArMPA' #time square static
+# url = 'https://www.youtube.com/watch?v=b3yQXprMj3s' #districts walking record
+url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #disctricts walking live
+
+
 video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 cap = cv2.VideoCapture(best.url)
 
 
 
-# initialize the HOG descriptor/person detector
+# HOG descriptor/person detector
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
@@ -36,12 +43,12 @@ def gen_frames():
     while(cap.isOpened()):
         ret, frame = cap.read()  # import image
         image = cv2.resize(frame, (0, 0), None, 1, 1)
-        # image = imutils.resize(image, width=min(600, image.shape[1]))
+        image = imutils.resize(image, width=1300)
         frame = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
 
 
-        pedestrians, weights = hog.detectMultiScale(frame, winStride=(4,4),padding=(4, 4), scale=1.5)
-        # pedestrians, weights = hog.detectMultiScale(frame)
+        # pedestrians, weights = hog.detectMultiScale(frame, winStride=(4,4),padding=(4, 4), scale=1.5)
+        pedestrians, weights = hog.detectMultiScale(frame)
         pedestrians = np.array([[x, y, x + w, y + h] for (x, y, w, h) in pedestrians])
 
         count = 0
@@ -64,7 +71,7 @@ def gen_frames():
         fps = str(fps)
         cv2.putText(img=frame, text=str(count), org =(1500, 65),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 8.0,color=(0, 0, 255),thickness = 2)
         cv2.putText(img=image, text=str(count), org = (950, 160),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 5.0,color=(125, 246, 55),thickness = 9)
-        cv2.putText(img=image, text="Shibuya Scramble Crossing", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,color=(125, 246, 55), thickness=3)
+        cv2.putText(img=image, text="Detection model : HOG", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,color=(125, 246, 55), thickness=3)
         cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2,cv2.LINE_AA)
         cv2.putText(img=image, text=(str(fps)+' fps'), org=(600, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
 

@@ -12,6 +12,7 @@ app = Flask(__name__)
 
 url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc'
 
+
 video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 cap = cv2.VideoCapture(best.url)
