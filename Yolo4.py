@@ -1,17 +1,9 @@
 import numpy as np
-import cv2
-import os
 import imutils
-from flask import Flask, request, render_template, Response
+from flask import Flask, render_template, Response
 import cv2
 import pafy
-from datetime import datetime, timedelta
-import pytz
-import time
-from flask import Flask, request, render_template, Response
-import cv2
-import pafy
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 import time
 
@@ -32,9 +24,6 @@ video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 cap = cv2.VideoCapture(best.url)
 
-
-
-x= datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")
 
 
 NMS_THRESHOLD=0
@@ -115,7 +104,25 @@ def gen_frames():
 
     while(cap.isOpened()):
         grabbed, frame = cap.read()
-        # print(frame.shape) # (720, 1280, 3)
+
+        labelsPath = "coco.names"
+        LABELS = open(labelsPath).read().strip().split("\n")
+
+        weights_path = "yolov4-tiny.weights"
+        config_path = "yolov4-tiny.cfg"
+
+        model = cv2.dnn.readNetFromDarknet(config_path, weights_path)
+        '''
+        model.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+        model.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+        '''
+
+        layer_name = model.getLayerNames()
+        # layer_name = [layer_name[i[0] - 1] for i in model.getUnconnectedOutLayers()]
+        layer_name = [layer_name[i - 1] for i in model.getUnconnectedOutLayers()]
+
+        writer = None
+
         image = imutils.resize(frame, width=1300)
         results = pedestrian_detection(image, model, layer_name,personidz=LABELS.index("person"))
 
@@ -137,7 +144,7 @@ def gen_frames():
 
 
         cv2.putText(img=image, text=str(count), org = (950, 160),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 5.0,color=(125, 246, 55),thickness = 9)
-        cv2.putText(img=image, text="Detection model : YOLOv4-tiny", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,color=(125, 246, 55), thickness=3)
+        cv2.putText(img=image, text="YOLOv4-tiny", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,color=(125, 246, 55), thickness=2)
         cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2,cv2.LINE_AA)
         cv2.putText(img=image, text=(str(fps)+' fps'), org=(700, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
 

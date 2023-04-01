@@ -1,17 +1,10 @@
 import imutils
-from flask import Flask, request, render_template, Response
-import cv2
-import time
-import pafy
-from vidgear.gears import CamGear
-from cap_from_youtube import cap_from_youtube
 import numpy as np
 from imutils.object_detection import non_max_suppression
-
 from flask import Flask, request, render_template, Response
 import cv2
 import pafy
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 import time
 
@@ -59,11 +52,6 @@ def gen_frames():
             cv2.putText(image, f'P{count}', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
             count += 1
 
-
-
-
-
-
         new_frame_time = time.time()
         fps = 1 / (new_frame_time - prev_frame_time)
         prev_frame_time = new_frame_time
@@ -83,9 +71,6 @@ def gen_frames():
         key = cv2.waitKey(20)
         if key == 27:
            break
-
-
-
 
 
 
