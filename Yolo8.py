@@ -153,6 +153,7 @@ def gen_frames():
         #         print(model.names[int(c)])
 
         results=results[0].boxes.boxes
+        results = results.numpy()
         # print(results)
 
         # results = pedestrian_detection(image, model, layer_name,personidz=LABELS.index("person"))
@@ -166,20 +167,22 @@ def gen_frames():
 
         count = 0
         for res in results:
-            res=res.numpy()
             # print(res)
             x1, y1, x2, y2, score,label=int(res[0]),int(res[1]),int(res[2]),int(res[3]),int(res[4]*100),int(res[5])
 
 
 
             # cv2.rectangle(image, (res[1][0],res[1][1]), (res[1][2],res[1][3]), (0, 255, 0), 2)
-            cv2.rectangle(image, (x1, y1), (x2,y2), (0, 255, 0), 2)
-            prob=score
-            print(score)
-            # prob *= 100
-            # prob = round(prob)
-            cv2.putText(image, f'{prob} %', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 2)
-            count += 1
+
+            names = model.model.names
+            if label in names:
+                label = names[label]
+                if label == 'person':
+                    cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
+
+                    # cv2.putText(image, f'{label}', (x1, y1-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    cv2.putText(image, f'{score} %', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+                    count += 1
 
 
         cv2.putText(img=image, text=str(count), org = (950, 160),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 5.0,color=(125, 246, 55),thickness = 9)
