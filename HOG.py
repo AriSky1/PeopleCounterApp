@@ -13,11 +13,11 @@ app = Flask(__name__)
 
 
 # url = 'https://www.youtube.com/watch?v=T5uyWFmW-vg' #short video japan moving
-# url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya crossing static
+url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya crossing static
 # url = 'https://www.youtube.com/watch?v=3kPH7kTphnE' #street static
 # url = 'https://www.youtube.com/watch?v=1-iS7LArMPA' #time square static
 # url = 'https://www.youtube.com/watch?v=b3yQXprMj3s' #districts walking record
-url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #disctricts walking live
+# url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #disctricts walking live
 
 
 video = pafy.new(url)

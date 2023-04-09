@@ -26,88 +26,17 @@ model = YOLO('yolov8n.pt')
 
 
 
-# url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya crossing static
+url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya crossing static
 # url = 'https://www.youtube.com/watch?v=1-iS7LArMPA' #time square static
 # url = 'https://www.youtube.com/watch?v=3kPH7kTphnE' #street static
 # url = 'https://www.youtube.com/watch?v=b3yQXprMj3s' #districts walking record
-url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #disctricts walking live
+# url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #disctricts walking live
 
 
 video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 cap = cv2.VideoCapture(best.url)
 
-
-
-NMS_THRESHOLD=0
-MIN_CONFIDENCE=0
-
-
-def pedestrian_detection(image, model, layer_name, personidz=0):
-    (H, W) = image.shape[:2]
-    results = []
-    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416),
-        swapRB=True, crop=False)
-    model.setInput(blob)
-    layerOutputs = model.forward(layer_name)
-
-    boxes = []
-    centroids = []
-    confidences = []
-
-    for output in layerOutputs:
-        for detection in output:
-
-            scores = detection[5:]
-            classID = np.argmax(scores)
-            confidence = scores[classID]
-
-            if classID == personidz and confidence > MIN_CONFIDENCE:
-
-                box = detection[0:4] * np.array([W, H, W, H])
-                (centerX, centerY, width, height) = box.astype("int")
-
-                x = int(centerX - (width / 2))
-                y = int(centerY - (height / 2))
-
-                boxes.append([x, y, int(width), int(height)])
-                centroids.append((centerX, centerY))
-                confidences.append(float(confidence))
-    # non-maxima suppression to suppress weak, overlapping bounding boxes
-    idzs = cv2.dnn.NMSBoxes(boxes, confidences, MIN_CONFIDENCE, NMS_THRESHOLD)
-    # ensure at least one detection exists
-    if len(idzs) > 0:
-        # loop over the indexes we are keeping
-        for i in idzs.flatten():
-            # extract the bounding box coordinates
-            (x, y) = (boxes[i][0], boxes[i][1])
-            (w, h) = (boxes[i][2], boxes[i][3])
-            # update our results list to consist of the person
-            # prediction probability, bounding box coordinates,
-            # and the centroid
-            res = (confidences[i], (x, y, x + w, y + h), centroids[i])
-            results.append(res)
-    return results
-
-
-# labelsPath = "coco.names"
-# LABELS = open(labelsPath).read().strip().split("\n")
-#
-# weights_path = "yolov4-tiny.weights"
-# config_path = "yolov4-tiny.cfg"
-#
-# model = cv2.dnn.readNetFromDarknet(config_path, weights_path)
-# '''
-# model.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-# model.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
-# '''
-#
-#
-# layer_name = model.getLayerNames()
-# # layer_name = [layer_name[i[0] - 1] for i in model.getUnconnectedOutLayers()]
-# layer_name = [layer_name[i - 1] for i in model.getUnconnectedOutLayers()]
-
-writer = None
 
 
 
@@ -119,32 +48,20 @@ def gen_frames():
     while(cap.isOpened()):
         grabbed, frame = cap.read()
 
-        # labelsPath = "coco.names"
-        # LABELS = open(labelsPath).read().strip().split("\n")
-        #
-        # weights_path = "yolov4-tiny.weights"
-        # config_path = "yolov4-tiny.cfg"
-        #
-        # model = cv2.dnn.readNetFromDarknet(config_path, weights_path)
-        # '''
-        # model.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-        # model.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
-        # '''
 
 
+        # image = imutils.resize(frame, width=1300)
+        image = frame
+        def zoom_at(img, zoom=1.2, angle=0, coord=None):
 
+            cy, cx = [i / 2 for i in img.shape[:-1]] if coord is None else coord[::-1]
 
+            rot_mat = cv2.getRotationMatrix2D((cx, cy), angle, zoom)
+            result = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
 
+            return result
 
-
-
-        # layer_name = model.getLayerNames()
-        # # layer_name = [layer_name[i[0] - 1] for i in model.getUnconnectedOutLayers()]
-        # layer_name = [layer_name[i - 1] for i in model.getUnconnectedOutLayers()]
-        #
-        # writer = None
-
-        image = imutils.resize(frame, width=1300)
+        image=zoom_at(image)
 
         results = model.predict(image)
         # print(results[0])
@@ -154,9 +71,7 @@ def gen_frames():
 
         results=results[0].boxes.boxes
         results = results.numpy()
-        # print(results)
 
-        # results = pedestrian_detection(image, model, layer_name,personidz=LABELS.index("person"))
 
 
         new_frame_time = time.time()
@@ -169,24 +84,18 @@ def gen_frames():
         for res in results:
             # print(res)
             x1, y1, x2, y2, score,label=int(res[0]),int(res[1]),int(res[2]),int(res[3]),int(res[4]*100),int(res[5])
-
-
-
-            # cv2.rectangle(image, (res[1][0],res[1][1]), (res[1][2],res[1][3]), (0, 255, 0), 2)
-
             names = model.model.names
             if label in names:
                 label = names[label]
                 if label == 'person':
                     cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
-
                     # cv2.putText(image, f'{label}', (x1, y1-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     cv2.putText(image, f'{score} %', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
                     count += 1
 
 
         cv2.putText(img=image, text=str(count), org = (950, 160),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 5.0,color=(125, 246, 55),thickness = 9)
-        cv2.putText(img=image, text="YOLOv8", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,color=(125, 246, 55), thickness=2)
+        cv2.putText(img=image, text="YOLOv8", org=(300, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,color=(125, 246, 55), thickness=2)
         cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2,cv2.LINE_AA)
         cv2.putText(img=image, text=(str(fps)+' fps'), org=(700, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
 
