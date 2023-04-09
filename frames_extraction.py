@@ -1,7 +1,16 @@
-
+import glob
 import cv2
-cam = cv2.VideoCapture("shibuya_raw.mp4")
+
+
+
+d = r"C:\Users\ariai\Documents\DATA SCIENCE\PROJECTS\PeopleCounterApp\videos"
+fl = glob.glob(d + "/*.mp4")
+counter = 0
+cam = cv2.VideoCapture(fl[counter])
 currentframe = 0
+
+
+
 
 while(True):
     ret,frame = cam.read()
