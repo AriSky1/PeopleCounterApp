@@ -5,11 +5,14 @@ import time
 import re
 
 absolute_path = os.path.dirname(__file__)
-relative_path = "videos"
-d = os.path.join(absolute_path, relative_path)
+vid_path = "videos"
+frames_selected_path = 'frames_selected'
+vid_path = os.path.join(absolute_path, vid_path)
+frames_path = 'frames'
+frames_path = os.path.join(absolute_path, frames_path)
+frames_selected_path = os.path.join(absolute_path, frames_selected_path)
 
-df = r"C:\Users\ariai\Documents\DATA SCIENCE\PROJECTS\PeopleCounterApp\frames"
-fl = glob.glob(d + "/*.mp4")
+fl = glob.glob(vid_path + "/*.mp4")
 counter = 0
 cam = cv2.VideoCapture(fl[counter])
 currentframe = 0
@@ -21,8 +24,9 @@ while(True):
     ret,frame = cam.read()
     if ret:
         name = 'frames\Frame(' + str(currentframe) + ').jpg'
+        if (currentframe % 5 == 0):
 
-        cv2.imwrite(name, frame)
+            cv2.imwrite(name, frame)
         currentframe += 1
     else:
         break
@@ -31,5 +35,4 @@ cam.release()
 cv2.destroyAllWindows()
 
 
-images=glob.glob(df+"/*[0]*")
-print(images)
+
