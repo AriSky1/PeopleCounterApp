@@ -16,7 +16,7 @@ import pytz
 
 import time
 import imutils
-from gen_frames import gen_frames_yolo, gen_frames_hog
+from gen_frames import gen_frames_yolo, gen_frames_hog, gen_frames_mog2
 import dash_bootstrap_components as dbc
 
 external_stylesheets = [
@@ -104,6 +104,28 @@ def hog_3():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
+# MOG2 + Shibuya static
+@server.route('/mog2_1')
+def mog2_1():
+    url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya static
+    return Response(gen_frames_mog2(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+# MOG2 + Street static
+@server.route('/mog2_2')
+def mog2_2():
+    url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #street walk
+    return Response(gen_frames_mog2(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# MOG2 + Street static
+@server.route('/mog2_3')
+def mog2_3():
+    url = 'https://www.youtube.com/watch?v=3kPH7kTphnE' #street static
+    return Response(gen_frames_mog2(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
 # CALLBACKS
 
 @app.callback(Output('container', 'children'),
@@ -112,17 +134,6 @@ def hog_3():
               State('video_dropdown', 'value'))
 
 def display_stream(n_clicks,cvmodel, video):
-    # global url
-    # global model
-    #
-    # if cvmodel == 'Yolo8':
-    #     model = YOLO('yolov8n.pt')
-    # if cvmodel == "MOG2" :
-    #     model = cv2.createBackgroundSubtractorMOG2(detectShadows=True)
-    # if video == 'Shibuya static':
-    #     url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc'
-    # if video == 'Street walk':
-    #     url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #disctricts walking live
 
     if n_clicks > 0 and cvmodel == 'Yolo8' and video == 'Shibuya static':
         return html.Div([html.Img(id='stream', src="/yolo8_1")])
@@ -136,6 +147,12 @@ def display_stream(n_clicks,cvmodel, video):
         return html.Div([html.Img(id='stream', src="/hog_2")])
     if n_clicks > 0 and cvmodel == 'HOG' and video == 'Street static':
         return html.Div([html.Img(id='stream', src="/hog_3")])
+    if n_clicks > 0 and cvmodel == 'MOG2' and video == 'Shibuya static':
+        return html.Div([html.Img(id='stream', src="/mog2_1")])
+    if n_clicks > 0 and cvmodel == 'MOG2' and video == 'Street walk':
+        return html.Div([html.Img(id='stream', src="/mog2_2")])
+    if n_clicks > 0 and cvmodel == 'MOG2' and video == 'Street static':
+        return html.Div([html.Img(id='stream', src="/mog2_3")])
 
 
 
