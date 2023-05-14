@@ -24,7 +24,7 @@ while(True):
     ret,frame = cam.read()
     if ret:
         name = 'frames\Frame(' + str(currentframe) + ').jpg'
-        if (currentframe % 5 == 0):
+        if (currentframe % 10 == 0):
 
             cv2.imwrite(name, frame)
         currentframe += 1

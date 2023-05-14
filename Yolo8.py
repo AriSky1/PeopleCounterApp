@@ -21,16 +21,17 @@ app = Flask(__name__)
 
 
 model = YOLO('yolov8n.pt')
+# model = YOLO(r'C:\Users\ariai\Documents\DATA SCIENCE\PROJECTS\PeopleCounterApp\runs\detect\yolov8n_custom4\weights\best.pt')
 
 # model = model.train(data='coco128.yaml', epochs=3)
 
 
 
-url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya crossing static
+# url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya crossing static
 # url = 'https://www.youtube.com/watch?v=1-iS7LArMPA' #time square static
 # url = 'https://www.youtube.com/watch?v=3kPH7kTphnE' #street static
 # url = 'https://www.youtube.com/watch?v=b3yQXprMj3s' #districts walking record
-# url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #disctricts walking live
+url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #disctricts walking live
 
 
 video = pafy.new(url)
