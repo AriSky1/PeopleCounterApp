@@ -58,12 +58,12 @@ def gen_frames(url, model):
                     cv2.putText(image, f'{score} %', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
                     count += 1
 
-        cv2.putText(img=image, text=str(count), org=(950, 160), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=5.0,
-                    color=(125, 246, 55), thickness=9)
-        cv2.putText(img=image, text="YOLOv8", org=(300, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,
-                    color=(125, 246, 55), thickness=2)
-        cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30),
-                    cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2, cv2.LINE_AA)
+        cv2.putText(img=image, text=str(count), org=(600, 160), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=4.0,
+                    color=(125, 246, 55), thickness=7)
+        # cv2.putText(img=image, text="YOLOv8", org=(300, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,
+        #             color=(125, 246, 55), thickness=2)
+        # cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30),
+        #             cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2, cv2.LINE_AA)
         cv2.putText(img=image, text=(str(fps) + ' fps'), org=(700, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,
                     color=(125, 246, 55), thickness=2)
 

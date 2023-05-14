@@ -17,6 +17,13 @@ import time
 import imutils
 from gen_frames import gen_frames
 
+
+style_flex={"display":"flex", "align-items":"flex-end", "gap":"20px",}
+style_dd={'width':'200px','background-color': '#F9F8F9', 'height':'40px', 'font_family': 'Tahoma'}
+style_btn = {'background-color': '#7FFF00','color': 'black','font-weight': 'bold', 'width':'200px', 'height':'40px'}
+style_text={'color': 'grey','fontSize': 18,'textAlign': 'left','font_family': 'Segoe UI', 'padding-bottom':'20px'}
+style_title={'color': 'grey','fontSize': 30,'textAlign': 'left','font_family': 'Tahoma'}
+
 server = Flask(__name__)
 app = Dash(__name__, server=server)
 
@@ -88,17 +95,17 @@ app = Dash(__name__, server=server)
 
 
 app.layout = html.Div(children=[
-    html.H1(children='Counter App'),
-
-    html.Div(children='''
+    html.H1(children='Counter App', style=style_title),
+html.Div(children='''
         Try live streams VS computer vision models.
-    '''),
+    ''', style=style_text),
+    html.Div([
+              html.Div([dcc.Dropdown(['Yolo8', 'MOG2', 'HOG'], 'Yolo8', id='model_dropdown'),], style=style_dd),
+    html.Div([dcc.Dropdown(['Shibuya static', 'Street walk'], 'Street walk', id='video_dropdown'),], style=style_dd),
+    html.Div([html.Button('Count',id='submit_btn',n_clicks=0,style=style_btn),], ),],
 
-
-    dcc.Dropdown(['Yolo8', 'MOG2', 'HOG'], 'Yolo8', id='model_dropdown'),
-    dcc.Dropdown(['Shibuya static', 'Street walk', 'HOG'], 'Street walk', id='video_dropdown'),
-    html.Button('Submit',id='submit_btn',n_clicks=0),
-
+             style=style_flex),
+    html.Br(),
     html.Div(id='container'),
 
 
