@@ -22,7 +22,7 @@ style_flex={"display":"flex", "align-items":"flex-end", "gap":"20px",}
 style_dd={'width':'200px','background-color': '#F9F8F9', 'height':'40px', 'font_family': 'Tahoma'}
 style_btn = {'background-color': '#7FFF00','color': 'black','font-weight': 'bold', 'width':'200px', 'height':'40px'}
 style_text={'color': 'grey','fontSize': 18,'textAlign': 'left','font_family': 'Segoe UI', 'padding-bottom':'20px'}
-style_title={'color': 'grey','fontSize': 30,'textAlign': 'left','font_family': 'Tahoma'}
+style_title={'color': 'grey','fontSize': 30,'textAlign': 'left','font_family': 'Tahoma', 'letter-spacing':'2px'}
 
 server = Flask(__name__)
 app = Dash(__name__, server=server)
@@ -95,13 +95,13 @@ app = Dash(__name__, server=server)
 
 
 app.layout = html.Div(children=[
-    html.H1(children='Counter App', style=style_title),
+    html.H1(children='People Counter', style=style_title),
 html.Div(children='''
         Try live streams VS computer vision models.
     ''', style=style_text),
     html.Div([
               html.Div([dcc.Dropdown(['Yolo8', 'MOG2', 'HOG'], 'Yolo8', id='model_dropdown'),], style=style_dd),
-    html.Div([dcc.Dropdown(['Shibuya static', 'Street walk'], 'Street walk', id='video_dropdown'),], style=style_dd),
+    html.Div([dcc.Dropdown(['Shibuya static', 'Street walk', 'Street static'], 'Street walk', id='video_dropdown'),], style=style_dd),
     html.Div([html.Button('Count',id='submit_btn',n_clicks=0,style=style_btn),], ),],
 
              style=style_flex),
@@ -116,7 +116,7 @@ html.Div(children='''
 
 ])
 
-
+# yolo8 + Shibuya static
 @server.route('/video_feed')
 def video_feed():
     url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya static
@@ -124,9 +124,18 @@ def video_feed():
     return Response(gen_frames(url, model),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# yolo8 + Street walk
 @server.route('/video_feed2')
 def video_feed2():
-    url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA'  # disctricts walking live
+    url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA'  # street walk
+    model = YOLO('yolov8n.pt')
+    return Response(gen_frames(url, model),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# yolo8 + Street static
+@server.route('/video_feed3')
+def video_feed3():
+    url = 'https://www.youtube.com/watch?v=3kPH7kTphnE'  # street static
     model = YOLO('yolov8n.pt')
     return Response(gen_frames(url, model),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -155,6 +164,8 @@ def display_stream(n_clicks,cvmodel, video):
         return html.Div([html.Img(id='stream', src="/video_feed")])
     if n_clicks > 0 and cvmodel == 'Yolo8' and video == 'Street walk':
         return html.Div([html.Img(id='stream', src="/video_feed2")])
+    if n_clicks > 0 and cvmodel == 'Yolo8' and video == 'Street static':
+        return html.Div([html.Img(id='stream', src="/video_feed3")])
 
 
 
