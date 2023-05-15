@@ -28,7 +28,7 @@ def gen_frames_yolo(url, model):
 
     while (cap.isOpened()):
         grabbed, frame = cap.read()
-        frame = imutils.resize(frame, width=800)
+        frame = imutils.resize(frame, width=900)
         image = frame
 
         def zoom_at(img, zoom=1.2, angle=0, coord=None):
@@ -66,7 +66,7 @@ def gen_frames_yolo(url, model):
         #             color=(125, 246, 55), thickness=2)
         # cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30),
         #             cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2, cv2.LINE_AA)
-        cv2.putText(img=image, text=(str(fps) + ' fps'), org=(650, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,
+        cv2.putText(img=image, text=(str(fps) + ' fps'), org=(750, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,
                     color=(125, 246, 55), thickness=2)
 
         frame = cv2.imencode('.jpg', image)[1].tobytes()
@@ -89,7 +89,7 @@ def gen_frames_hog(url):
     new_frame_time = 0
     while (cap.isOpened()):
         ret, frame = cap.read()  # import image
-        frame = imutils.resize(frame, width=800)
+        frame = imutils.resize(frame, width=900)
         image = cv2.resize(frame, (0, 0), None, 1, 1)
         frame = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
 
@@ -118,7 +118,7 @@ def gen_frames_hog(url):
         #             fontScale=1.2, color=(125, 246, 55), thickness=3)
         # cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")),
         #             (900, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2, cv2.LINE_AA)
-        cv2.putText(img=image, text=(str(fps) + ' fps'), org=(650, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,
+        cv2.putText(img=image, text=(str(fps) + ' fps'), org=(750, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,
                     color=(125, 246, 55), thickness=2)
 
         frame = cv2.imencode('.jpg', image)[1].tobytes()
@@ -151,7 +151,7 @@ def gen_frames_mog2(url):
         ret, frame = cap.read()
 
         image = cv2.resize(frame, (0, 0), None, 1, 1)
-        image = imutils.resize(frame, width=800)
+        image = imutils.resize(frame, width=900)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
         curr_img = sub.apply(
             gray)  # subtraction between the current frame and a background model, containing the static part of the scene
@@ -204,7 +204,7 @@ def gen_frames_mog2(url):
         #             fontScale=1.0, color=(125, 246, 55), thickness=2)
         # cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")),
         #             (900, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2, cv2.LINE_AA)
-        cv2.putText(img=image, text=(str(fps) + ' fps'), org=(650, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,
+        cv2.putText(img=image, text=(str(fps) + ' fps'), org=(750, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,
                     color=(125, 246, 55), thickness=2)
 
         frame = cv2.imencode('.jpg', image)[1].tobytes()

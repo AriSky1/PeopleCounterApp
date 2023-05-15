@@ -21,32 +21,50 @@ import dash_bootstrap_components as dbc
 
 external_stylesheets = [
     'https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@600&display=swap',
-     dbc.themes.BOOTSTRAP
+     dbc.themes.CYBORG
 ]
 
-style_flex={"display":"flex", "align-items":"flex-end", "gap":"20px", 'padding-left': '20px'}
-style_dd={'width':'200px','background-color': '#F9F8F9', 'height':'40px', 'font_family': 'Tahoma'}
-style_btn = {'background-color': '#7FFF00','color': 'black','font-weight': 'bold', 'width':'200px', 'height':'40px'}
-style_text={'color': 'grey','fontSize': 18,'textAlign': 'left','font_family': 'Segoe UI', 'padding-bottom':'20px','padding-left': '20px'}
-style_title={'color': 'grey','fontSize': 30,'textAlign': 'left', 'letter-spacing':'2px', 'padding-left': '20px','padding-top': '20px'}
+style_flex={"display":"inline-flex", "align-items":"flex-end", "gap":"20px", 'padding-left': '20px'}
+style_dd={'width':'200px','background-color': '#696969', 'height':'20px', 'font_family': 'Tahoma','padding-bottom':'50px', }
+style_btn = {'background-color': '#7FFF00','color': 'black','font-weight': 'bold', 'width':'200px', 'height':'40px',}
+style_text={'color': 'grey','fontSize': 18,'textAlign': 'center','font_family': 'Segoe UI', 'padding-bottom':'20px','padding-left': '20px'}
+style_title={'color': 'grey','fontSize': 30,'textAlign': 'center', 'letter-spacing':'2px', 'padding-left': '20px','padding-top': '20px'}
+style_input={'width':'200px', 'height':'40px', 'font_family': 'Tahoma',}
+style_menu={'padding-left': '20px', 'width':'250px'}
 
 server = Flask(__name__)
 app = Dash(__name__, server=server,external_stylesheets=external_stylesheets)
-
+app.css.append_css({'external_url': '/static/styles.css'})
+app.server.static_folder = 'static'
 
 app.layout = html.Div(children=[
     html.H1(children='People Counter', style=style_title),
-html.Div(children='''
-        Try live streams VS computer vision models.
+    html.Div(children='''
+        Try computer vision models 
+        on real-time streams or 
+        YouTube videos.
     ''', style=style_text),
-    html.Div([
-              html.Div([dcc.Dropdown(['Yolo8', 'MOG2', 'HOG'], 'Yolo8', id='model_dropdown'),], style=style_dd),
-    html.Div([dcc.Dropdown(['Shibuya static', 'Street walk', 'Street static'], 'Street walk', id='video_dropdown'),], style=style_dd),
-    html.Div([html.Button('Count',id='submit_btn',n_clicks=0,style=style_btn),], ),],
 
-             style=style_flex),
-    html.Br(),
-    html.Div(id='container', style={'padding-left': '20px'}),
+    html.Div([
+
+    html.Div([
+
+
+    html.Plaintext('Chose a model : '),
+    html.Div([dcc.Dropdown(['Yolo8', 'MOG2', 'HOG'], 'Yolo8', id='model_dropdown',style=style_dd),], ),
+    html.Br(),html.Br(),
+    html.Plaintext('Chose a stream : '),
+    html.Div([dcc.Dropdown(['Shibuya static', 'Street walk', 'Street static'], 'Street walk', id='video_dropdown',style=style_dd),], ),
+html.Br(),html.Br(),
+    html.Plaintext('or  ', style={'text-align':'center'}),
+    html.Div([dcc.Input(id='input', type='text', placeholder='Paste YouTube link',)],style=style_input ),
+    html.Br(),html.Br(),
+    html.Div([html.Button('Count',id='submit_btn',n_clicks=0,style=style_btn),], ),], style=style_menu,
+
+             ),
+    # html.Br(),
+
+    html.Div(id='container', ),], style={'display':'inline-flex'}),
 
 
     # html.Img(id='stream',src="/video_feed"),
@@ -54,7 +72,9 @@ html.Div(children='''
 
 
 
-])
+], style={'backgroundColor': '#111111', 'height':'700px'})
+
+
 
 # yolo8 + Shibuya static
 @server.route('/yolo8_1')
@@ -126,14 +146,53 @@ def mog2_3():
     return Response(gen_frames_mog2(url),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+
+
+# MOG2 + input
+@server.route('/mog2_4')
+def mog2_4():
+    url = input
+    return Response(gen_frames_mog2(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# Yolo8 + input
+@server.route('/yolo8_4')
+def yolo8_4():
+    url = input
+    model = YOLO('yolov8n.pt')
+    return Response(gen_frames_yolo(url,model),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# HOG + input
+@server.route('/hog_4')
+def hog_4():
+    url = input
+    return Response(gen_frames_hog(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
 # CALLBACKS
 
 @app.callback(Output('container', 'children'),
               Input('submit_btn', 'n_clicks'),
+              Input("input", "value"),
               State('model_dropdown', 'value'),
               State('video_dropdown', 'value'))
 
-def display_stream(n_clicks,cvmodel, video):
+def display_stream(n_clicks,user_input,cvmodel, video):
+    global input
+
+
+    if user_input is not None and cvmodel == 'Yolo8':
+        input=user_input
+        return html.Div([html.Img(id='stream', src="/yolo8_4")])
+    if user_input is not None and cvmodel == 'HOG':
+        input=user_input
+        return html.Div([html.Img(id='stream', src="/hog_4")])
+    if user_input is not None and cvmodel == 'MOG2':
+        input=user_input
+        return html.Div([html.Img(id='stream', src="/mog2_4")])
+
 
     if n_clicks > 0 and cvmodel == 'Yolo8' and video == 'Shibuya static':
         return html.Div([html.Img(id='stream', src="/yolo8_1")])

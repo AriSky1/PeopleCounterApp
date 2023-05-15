@@ -1,6 +1,6 @@
-body {
-    background-color: #493846;
-    }
+.body {
+    background-color: #47476b;
+}
 
 .block {
     display: flex;
@@ -18,3 +18,4 @@ body {
     font-family: "Lucida Console", "Courier New", monospace;
 
 }
+
