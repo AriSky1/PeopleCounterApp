@@ -51,8 +51,8 @@ def gen_frames():
 
 
 
-        # image = imutils.resize(frame, width=1300)
-        image = frame
+        image = imutils.resize(frame, width=900)
+        # image = frame
         def zoom_at(img, zoom=1.2, angle=0, coord=None):
 
             cy, cx = [i / 2 for i in img.shape[:-1]] if coord is None else coord[::-1]

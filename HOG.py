@@ -13,10 +13,10 @@ app = Flask(__name__)
 
 
 # url = 'https://www.youtube.com/watch?v=T5uyWFmW-vg' #short video japan moving
-url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya crossing static
+# url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya crossing static
 # url = 'https://www.youtube.com/watch?v=3kPH7kTphnE' #street static
 # url = 'https://www.youtube.com/watch?v=1-iS7LArMPA' #time square static
-# url = 'https://www.youtube.com/watch?v=b3yQXprMj3s' #districts walking record
+url = 'https://www.youtube.com/watch?v=b3yQXprMj3s' #districts walking record
 # url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #disctricts walking live
 
 
@@ -35,8 +35,10 @@ def gen_frames():
     new_frame_time = 0
     while(cap.isOpened()):
         ret, frame = cap.read()  # import image
-        image = cv2.resize(frame, (0, 0), None, 1, 1)
-        image = imutils.resize(image, width=1300)
+        image=frame
+        # image = cv2.resize(frame, (0, 0), None, 1, 1)
+        # image = imutils.resize(image, width=1300)
+        image = imutils.resize(image, width=900)
         frame = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # converts image to gray
 
 

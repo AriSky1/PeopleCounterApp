@@ -43,7 +43,7 @@ sub = cv2.createBackgroundSubtractorMOG2(detectShadows=True)
 sub.setShadowValue(0)
 #Sets shadow
 
-sub.setVarThresholdGen(50)
+sub.setVarThresholdGen(60)
 #Sets the variance threshold for the pixel-model match used for new mixture component generation.
 
 

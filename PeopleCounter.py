@@ -1,23 +1,15 @@
 from dash import Dash, html, dcc
-import plotly.express as px
-import pandas as pd
 from ultralytics import YOLO
-from dash import dash
 from dash import dcc
 from dash import html
-from dash import dash_table
-from dash import ctx
 from dash.dependencies import Input, Output, State
-import pafy
-import cv2
 from flask import Flask, render_template, Response
-from datetime import datetime
-import pytz
-
-import time
-import imutils
 from gen_frames import gen_frames_yolo, gen_frames_hog, gen_frames_mog2
 import dash_bootstrap_components as dbc
+
+modelyolo = YOLO('yolov8n.pt')
+
+
 
 external_stylesheets = [
     'https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@600&display=swap',
@@ -40,7 +32,7 @@ app.server.static_folder = 'static'
 app.layout = html.Div(children=[
     html.H1(children='People Counter', style=style_title),
     html.Div(children='''
-        Try computer vision models 
+        Try the fastest computer vision models 
         on real-time streams or 
         YouTube videos.
     ''', style=style_text),
@@ -51,10 +43,10 @@ app.layout = html.Div(children=[
 
 
     html.Plaintext('Chose a model : '),
-    html.Div([dcc.Dropdown(['Yolo8', 'MOG2', 'HOG'], 'Yolo8', id='model_dropdown',style=style_dd),], ),
+    html.Div([dcc.Dropdown(['YOLOv8', 'MOG2'], 'YOLOv8', id='model_dropdown',style=style_dd),], ),
     html.Br(),html.Br(),
     html.Plaintext('Chose a stream : '),
-    html.Div([dcc.Dropdown(['Shibuya static', 'Street walk', 'Street static'], 'Street walk', id='video_dropdown',style=style_dd),], ),
+    html.Div([dcc.Dropdown([ 'Street walk', 'Street static','Shibuya static',], 'Street walk', id='video_dropdown',style=style_dd),], ),
 html.Br(),html.Br(),
     html.Plaintext('or  ', style={'text-align':'center'}),
     html.Div([dcc.Input(id='input', type='text', placeholder='Paste YouTube link',)],style=style_input ),
@@ -62,14 +54,8 @@ html.Br(),html.Br(),
     html.Div([html.Button('Count',id='submit_btn',n_clicks=0,style=style_btn),], ),], style=style_menu,
 
              ),
-    # html.Br(),
 
     html.Div(id='container', ),], style={'display':'inline-flex'}),
-
-
-    # html.Img(id='stream',src="/video_feed"),
-
-
 
 
 ], style={'backgroundColor': '#111111', 'height':'700px'})
@@ -80,24 +66,24 @@ html.Br(),html.Br(),
 @server.route('/yolo8_1')
 def yolo8_1():
     url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya static
-    model = YOLO('yolov8n.pt')
-    return Response(gen_frames_yolo(url, model),
+    # model = YOLO('yolov8n.pt')
+    return Response(gen_frames_yolo(url, modelyolo),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # yolo8 + Street walk
 @server.route('/yolo8_2')
 def yolo8_2():
     url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA'  # street walk
-    model = YOLO('yolov8n.pt')
-    return Response(gen_frames_yolo(url, model),
+    # model = YOLO('yolov8n.pt')
+    return Response(gen_frames_yolo(url, modelyolo),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # yolo8 + Street static
 @server.route('/yolo8_3')
 def yolo8_3():
     url = 'https://www.youtube.com/watch?v=3kPH7kTphnE'  # street static
-    model = YOLO('yolov8n.pt')
-    return Response(gen_frames_yolo(url, model),
+    # model = YOLO('yolov8n.pt')
+    return Response(gen_frames_yolo(url, modelyolo),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -148,7 +134,7 @@ def mog2_3():
 
 
 
-# MOG2 + input
+# MOG2 + inputs
 @server.route('/mog2_4')
 def mog2_4():
     url = input
@@ -183,29 +169,29 @@ def display_stream(n_clicks,user_input,cvmodel, video):
     global input
 
 
-    if user_input is not None and cvmodel == 'Yolo8':
+    if user_input is not None and cvmodel == 'YOLOv8':
         input=user_input
         return html.Div([html.Img(id='stream', src="/yolo8_4")])
-    if user_input is not None and cvmodel == 'HOG':
-        input=user_input
-        return html.Div([html.Img(id='stream', src="/hog_4")])
+    # if user_input is not None and cvmodel == 'HOG':
+    #     input=user_input
+    #     return html.Div([html.Img(id='stream', src="/hog_4")])
     if user_input is not None and cvmodel == 'MOG2':
         input=user_input
         return html.Div([html.Img(id='stream', src="/mog2_4")])
 
 
-    if n_clicks > 0 and cvmodel == 'Yolo8' and video == 'Shibuya static':
+    if n_clicks > 0 and cvmodel == 'YOLOv8' and video == 'Shibuya static':
         return html.Div([html.Img(id='stream', src="/yolo8_1")])
-    if n_clicks > 0 and cvmodel == 'Yolo8' and video == 'Street walk':
+    if n_clicks > 0 and cvmodel == 'YOLOv8' and video == 'Street walk':
         return html.Div([html.Img(id='stream', src="/yolo8_2")])
-    if n_clicks > 0 and cvmodel == 'Yolo8' and video == 'Street static':
+    if n_clicks > 0 and cvmodel == 'YOLOv8' and video == 'Street static':
         return html.Div([html.Img(id='stream', src="/yolo8_3")])
-    if n_clicks > 0 and cvmodel == 'HOG' and video == 'Shibuya static':
-        return html.Div([html.Img(id='stream', src="/hog_1")])
-    if n_clicks > 0 and cvmodel == 'HOG' and video == 'Street walk':
-        return html.Div([html.Img(id='stream', src="/hog_2")])
-    if n_clicks > 0 and cvmodel == 'HOG' and video == 'Street static':
-        return html.Div([html.Img(id='stream', src="/hog_3")])
+    # if n_clicks > 0 and cvmodel == 'HOG' and video == 'Shibuya static':
+    #     return html.Div([html.Img(id='stream', src="/hog_1")])
+    # if n_clicks > 0 and cvmodel == 'HOG' and video == 'Street walk':
+    #     return html.Div([html.Img(id='stream', src="/hog_2")])
+    # if n_clicks > 0 and cvmodel == 'HOG' and video == 'Street static':
+    #     return html.Div([html.Img(id='stream', src="/hog_3")])
     if n_clicks > 0 and cvmodel == 'MOG2' and video == 'Shibuya static':
         return html.Div([html.Img(id='stream', src="/mog2_1")])
     if n_clicks > 0 and cvmodel == 'MOG2' and video == 'Street walk':
