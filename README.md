@@ -1,24 +1,11 @@
+https://github.com/AriSky1/PeopleCounterApp/assets/105871709/32df3dc7-86aa-48d3-9818-57392279c076
+
+
+The main goal of this project was to try to count the exact number of pedestrians on the busiest pedestrian crossing in the world - Shibuya, but I didn't achieve the exêcted results.
+
+I eventually made an app that counts pedestrians on videos. The user can provide a YouTube link or chose available streams.
+
+Despite using fast models (YOLOv8, Background Substractor MOG2), the streams are quite slow.
 
 
 
-https://user-images.githubusercontent.com/105871709/227682244-9def5fe6-7a77-4ab7-99c6-931738e08350.mp4
-
-
-
-The challenges:
-<br>
-- very small objects (pedestrians) on this particular video, too small for HOG (Histograms of Oriented Gradients),trained to detect pedestrians that are mostly standing up
-and fully visible, and also too small for YOLO model.
-- objects in motion on a live stream require very fast processing
-
-
-Choice : Background substractor method with MOG2 (OpenCV)
-
-
-The limits:
-<br>
-- works better on same size objects
-- sensitive to car flashes, rain, night lights
-- hard to parameter
-- works only under certain conditions (clear weather, daytime)
-- average precision but might be ok for this task
