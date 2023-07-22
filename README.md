@@ -1,4 +1,4 @@
-https://github.com/AriSky1/PeopleCounterApp/assets/105871709/32df3dc7-86aa-48d3-9818-57392279c076
+https://github.com/AriSky1/PeopleCounterApp/PeopleCounter.mp4
 
 
 The main goal of this project was to try to count the exact number of pedestrians on the busiest pedestrian crossing in the world - Shibuya, but I didn't achieve the exêcted results.
