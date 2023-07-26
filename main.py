@@ -1,84 +1,45 @@
-import imutils
-from flask import Flask, render_template, Response, request
-import cv2
-import pafy
-from datetime import datetime
-import pytz
-import time
-from Yolo4 import pedestrian_detection
+from dash import Dash, html, dcc
+from ultralytics import YOLO
+from dash import dcc
+from dash import html
+from dash.dependencies import Input, Output, State
+from flask import Flask, render_template, Response
+from gen_frames import gen_frames_yolo, gen_frames_hog, gen_frames_mog2
+import dash_bootstrap_components as dbc
 
-app = Flask(__name__)
-
-
+modelyolo = YOLO('yolov8n.pt')
 
 
-# url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya crossing static
-# url = 'https://www.youtube.com/watch?v=1-iS7LArMPA' #time square static
-# url = 'https://www.youtube.com/watch?v=3kPH7kTphnE' #street static
-# url = 'https://www.youtube.com/watch?v=b3yQXprMj3s' #districts walking record
-url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #disctricts walking live
+
+external_stylesheets = [
+    'https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@600&display=swap',
+"https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap",
+     dbc.themes.CYBORG
+]
+
+style_flex={"display":"inline-flex", "align-items":"flex-end", "gap":"20px", 'padding-left': '20px'}
+style_dd={'width':'200px', 'color': 'black','background-color': '#332d30', 'height':'20px','padding-bottom':'50px', }
+style_btn = {'background-color': '#6c0b75','color': 'white','font-weight': 'bold', 'width':'200px', 'height':'40px',}
+style_text={'color': 'grey','fontSize': 25,'textAlign': 'center','font_family': 'Segoe UI', 'padding-bottom':'20px','padding-left': '20px'}
 
 
-video = pafy.new(url)
-best = video.getbest(preftype="mp4")
-cap = cv2.VideoCapture(best.url)
 
+server = Flask(__name__)
+app = Dash(__name__, server=server,external_stylesheets=external_stylesheets)
+app.css.append_css({'external_url': '/static/styles.css'})
+app.server.static_folder = 'static'
 
-def gen_frames():
-    prev_frame_time = 0
-    new_frame_time = 0
+app.layout = html.Div(children=[
+    html.H1(children='People Counter'),
+    html.Div(children='''
+        Try the fastest computer vision models 
+        on real-time streams or 
+         videos.
+    ''', style=style_text),
 
-    while(cap.isOpened()):
-        grabbed, frame = cap.read()
+    html.Div([
 
-        labelsPath = "coco.names"
-        LABELS = open(labelsPath).read().strip().split("\n")
-
-        weights_path = "yolov4-tiny.weights"
-        config_path = "yolov4-tiny.cfg"
-
-        model = cv2.dnn.readNetFromDarknet(config_path, weights_path)
-        '''
-        model.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-        model.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
-        '''
-
-        layer_name = model.getLayerNames()
-        # layer_name = [layer_name[i[0] - 1] for i in model.getUnconnectedOutLayers()]
-        layer_name = [layer_name[i - 1] for i in model.getUnconnectedOutLayers()]
-
-        writer = None
-
-        image = imutils.resize(frame, width=1300)
-        results = pedestrian_detection(image, model, layer_name,personidz=LABELS.index("person"))
-
-
-        new_frame_time = time.time()
-        fps = 1 / (new_frame_time - prev_frame_time)
-        prev_frame_time = new_frame_time
-        fps = int(fps)
-        fps = str(fps)
-
-        count = 0
-        for res in results:
-            cv2.rectangle(image, (res[1][0],res[1][1]), (res[1][2],res[1][3]), (0, 255, 0), 2)
-            prob=results[0][0]
-            prob *= 100
-            prob = round(prob)
-            cv2.putText(image, f'{prob} %', (res[1][0], res[1][1]), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 2)
-            count += 1
-
-
-        cv2.putText(img=image, text=str(count), org = (950, 160),fontFace = cv2.FONT_HERSHEY_DUPLEX, fontScale = 5.0,color=(125, 246, 55),thickness = 9)
-        cv2.putText(img=image, text="YOLOv4-tiny", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,color=(125, 246, 55), thickness=2)
-        cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2,cv2.LINE_AA)
-        cv2.putText(img=image, text=(str(fps)+' fps'), org=(700, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,color=(125, 246, 55), thickness=2)
-
-        frame = cv2.imencode('.jpg', image)[1].tobytes()
-        yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        key = cv2.waitKey(20)
-        if key == 27:
-            break
+    html.Div([
 
 
 
@@ -87,24 +48,172 @@ def gen_frames():
 
 
 
-@app.route('/video_feed')
-def video_feed():
-    """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(gen_frames(),
+
+    html.H2('MODEL'),
+    html.Div( [dcc.Dropdown(['YOLOv8', 'MOG2'], 'Chose a model', id='model_dropdown',style=style_dd, className='dd'),], ),
+    html.Br(),html.Br(),
+    html.H2('LIVE'),
+    html.Div([dcc.Dropdown([ 'Street walk', 'Street static','Shibuya static',], 'Chose live', id='video_dropdown',style=style_dd, className='dd'),], ),
+    html.Br(),html.Br(),
+    html.H2('FROM LINK'),
+    html.Div([dcc.Input(id='input', type='text', placeholder='Your YouTube link', className='link')],),
+    html.Br(),html.Br(),
+    html.Div([html.Button('START',id='submit_btn',n_clicks=0, className='btn'),], ),],style={'padding-left': '60px', 'padding-right': '80px'}
+
+             ),
+
+    html.Div(id='container', ),], style={'display':'inline-flex'}),
+
+
+], style={'backgroundColor': '#111111', 'height':'700px'})
+
+
+
+# yolo8 + Shibuya static
+@server.route('/yolo8_1')
+def yolo8_1():
+    url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya static
+    # model = YOLO('yolov8n.pt')
+    return Response(gen_frames_yolo(url, modelyolo),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# yolo8 + Street walk
+@server.route('/yolo8_2')
+def yolo8_2():
+    url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA'  # street walk
+    # model = YOLO('yolov8n.pt')
+    return Response(gen_frames_yolo(url, modelyolo),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# yolo8 + Street static
+@server.route('/yolo8_3')
+def yolo8_3():
+    url = 'https://www.youtube.com/watch?v=3kPH7kTphnE'  # street static
+    # model = YOLO('yolov8n.pt')
+    return Response(gen_frames_yolo(url, modelyolo),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+# HOG + Shibuya static
+@server.route('/hog_1')
+def hog_1():
+    url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya static
+    return Response(gen_frames_hog(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# HOG + Street walk
+@server.route('/hog_2')
+def hog_2():
+    url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' # street walk
+    return Response(gen_frames_hog(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+# HOG + Street static
+@server.route('/hog_3')
+def hog_3():
+    url = 'https://www.youtube.com/watch?v=3kPH7kTphnE' # street static
+    return Response(gen_frames_hog(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+# MOG2 + Shibuya static
+@server.route('/mog2_1')
+def mog2_1():
+    url = 'https://www.youtube.com/watch?v=IBFCV4zhMGc' #shibuya static
+    return Response(gen_frames_mog2(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+# MOG2 + Street static
+@server.route('/mog2_2')
+def mog2_2():
+    url = 'https://www.youtube.com/watch?v=cH7VBI4QQzA' #street walk
+    return Response(gen_frames_mog2(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# MOG2 + Street static
+@server.route('/mog2_3')
+def mog2_3():
+    url = 'https://www.youtube.com/watch?v=3kPH7kTphnE' #street static
+    return Response(gen_frames_mog2(url),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 
-# Main function here
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        if request.form.get['submit_btn'] == 'submit':
-            return render_template('index.html')
-    else:
-        return render_template('base.html')
+# MOG2 + inputs
+@server.route('/mog2_4')
+def mog2_4():
+    url = input
+    return Response(gen_frames_mog2(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# Yolo8 + input
+@server.route('/yolo8_4')
+def yolo8_4():
+    url = input
+    model = YOLO('yolov8n.pt')
+    return Response(gen_frames_yolo(url,model),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# HOG + input
+@server.route('/hog_4')
+def hog_4():
+    url = input
+    return Response(gen_frames_hog(url),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+# CALLBACKS
+
+@app.callback(Output('container', 'children'),
+              Input('submit_btn', 'n_clicks'),
+              Input("input", "value"),
+              State('model_dropdown', 'value'),
+              State('video_dropdown', 'value'))
+
+def display_stream(n_clicks,user_input,cvmodel, video):
+    global input
+
+
+    if user_input is not None and cvmodel == 'YOLOv8':
+        input=user_input
+        return html.Div([html.Img(id='stream', src="/yolo8_4")])
+    # if user_input is not None and cvmodel == 'HOG':
+    #     input=user_input
+    #     return html.Div([html.Img(id='stream', src="/hog_4")])
+    if user_input is not None and cvmodel == 'MOG2':
+        input=user_input
+        return html.Div([html.Img(id='stream', src="/mog2_4")])
+
+
+    if n_clicks > 0 and cvmodel == 'YOLOv8' and video == 'Shibuya static':
+        return html.Div([html.Img(id='stream', src="/yolo8_1")])
+    if n_clicks > 0 and cvmodel == 'YOLOv8' and video == 'Street walk':
+        return html.Div([html.Img(id='stream', src="/yolo8_2")])
+    if n_clicks > 0 and cvmodel == 'YOLOv8' and video == 'Street static':
+        return html.Div([html.Img(id='stream', src="/yolo8_3")])
+    # if n_clicks > 0 and cvmodel == 'HOG' and video == 'Shibuya static':
+    #     return html.Div([html.Img(id='stream', src="/hog_1")])
+    # if n_clicks > 0 and cvmodel == 'HOG' and video == 'Street walk':
+    #     return html.Div([html.Img(id='stream', src="/hog_2")])
+    # if n_clicks > 0 and cvmodel == 'HOG' and video == 'Street static':
+    #     return html.Div([html.Img(id='stream', src="/hog_3")])
+    if n_clicks > 0 and cvmodel == 'MOG2' and video == 'Shibuya static':
+        return html.Div([html.Img(id='stream', src="/mog2_1")])
+    if n_clicks > 0 and cvmodel == 'MOG2' and video == 'Street walk':
+        return html.Div([html.Img(id='stream', src="/mog2_2")])
+    if n_clicks > 0 and cvmodel == 'MOG2' and video == 'Street static':
+        return html.Div([html.Img(id='stream', src="/mog2_3")])
+
+
+
+
+
+
+
 
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run_server(debug=True)

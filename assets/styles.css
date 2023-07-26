@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Kodchasan:wght@200&family=Lexend+Tera:wght@300&display=swap');
+
+body {
+    font-family: 'Kodchasan', sans-serif;
+    }
+
+
+
+
+h1 {
+
+    color: #60db63;
+    fontSize: 45;
+    text-align: center;
+     letter-spacing:2px;
+      padding-left: 20px;
+      padding-top: 50px;
+
+}
+
+h2 {
+    color: grey;
+    font-size: 30px;
+    text-align: center;
+}
+
+.btn {
+
+    color: #60db63;
+    font-size: 40px;
+    font-family: font-family: 'Lexend Tera', sans-serif;
+}
+
+.link {
+
+    width:200px;
+     height:40px;
+     color: #60db6;
+     background-color: #332d30;
+}
+
+.dd {
+
+    width:200px;
+    background-color: #332d30;
+    height:20px;
+    padding-bottom:50px; }
+
+}
+
+
+
+
+
+
+
+
+
+
+/* input box */
+.Select-control {
+    background-color: black;
+        color: #60db63;
+      font-size: 25px;
+}
+
+
+/* changes the text color of input box */
+.Select-value-label {
+    color: #60db63 !important;
+        color: #60db63;
+      font-size: 25px;
+}
+
+.Select--single > .Select-control .Select-value, .Select-placeholder {
+    border: 1px solid grey;
+    border-radius: 4px;
+      font-size: 25px;
+}
+
+
+/* dropdown menu options */
+.VirtualizedSelectOption {
+    background-color: black;
+    color: #60db63;
+      font-size: 25px;
+ }
+
+
+/* dropdown menu hover effect */
+.VirtualizedSelectFocusedOption {
+    background-color: black;
+        color: #60db63;
+      font-size: 25px;
+    opacity: .7;
+}
+
+
+/* border on focus - default is blue
+ * shadow box around input box.  default is blue
+ */
+.is-focused:not(.is-open) > .Select-control {
+  border-color: var(--primary);
+  box-shadow: none;
+          color: #60db63;
+      font-size: 25px;
+}
+
+
+
+
+/* this colors the input box text and x  of multi dropdown*/
+.Select--multi .Select-value {
+  color: #60db63;
+  font-size: 30px;
+}
