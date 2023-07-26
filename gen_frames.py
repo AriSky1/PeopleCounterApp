@@ -61,10 +61,6 @@ def gen_frames_yolo(url, model):
 
         cv2.putText(img=image, text=str(count), org=(600, 160), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=4.0,
                     color=(125, 246, 55), thickness=7)
-        # cv2.putText(img=image, text="Detection model : YOLOv8-tiny", org=(300, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.2,
-        #             color=(125, 246, 55), thickness=2)
-        # cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")), (900, 30),
-        #             cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2, cv2.LINE_AA)
         cv2.putText(img=image, text=(str(fps) + ' fps'), org=(750, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,
                     color=(125, 246, 55), thickness=2)
 
@@ -73,7 +69,7 @@ def gen_frames_yolo(url, model):
         key = cv2.waitKey(20)
         if key == 27:
             break
-    # time.sleep(FPS)
+
     cv2.waitKey(FPS_MS)
 
 
@@ -102,9 +98,7 @@ def gen_frames_hog(url):
         pedestrians = non_max_suppression(pedestrians, probs=None, overlapThresh=0.8)
         for x, y, w, h in pedestrians:
             cv2.rectangle(image, (x, y), (w, h), (125, 246, 55), 2)
-            # cv2.rectangle(image, (x, y - 20), (w, y), (0, 0, 255), -1)
-            # cv2.rectangle(image, (x, y), (x + w, y + h), (125, 246, 55), 2)  # green
-            # cv2.putText(image, f'P{count}', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+
             count += 1
 
         new_frame_time = time.time()
@@ -191,10 +185,6 @@ def gen_frames_mog2(url):
 
         cv2.putText(img=image, text=str(count), org=(600, 160), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=4.0,
                     color=(125, 246, 55), thickness=7)
-        # cv2.putText(img=image, text="BackgroundSubtractorMOG2", org=(20, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX,
-        #             fontScale=1.0, color=(125, 246, 55), thickness=2)
-        # cv2.putText(image, str(datetime.now(tz=pytz.timezone('Asia/Tokyo')).strftime("%Y-%m-%d %H:%M:%S")),
-        #             (300, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (125, 246, 55), 2, cv2.LINE_AA)
         cv2.putText(img=image, text=(str(fps) + ' fps'), org=(750, 30), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1.0,
                     color=(125, 246, 55), thickness=2)
 

@@ -2,6 +2,7 @@
 
 body {
     font-family: 'Kodchasan', sans-serif;
+    height: 1000px;
     }
 
 
@@ -24,6 +25,19 @@ h2 {
     text-align: center;
 }
 
+
+
+h3 {
+
+    color: grey;
+    font-size: 30px;
+    text-align: center;
+
+    padding-bottom:20px;
+    padding-left: 20px
+
+    }
+
 .btn {
 
     color: #60db63;
@@ -35,8 +49,10 @@ h2 {
 
     width:200px;
      height:40px;
-     color: #60db6;
+     color: white;
      background-color: #332d30;
+         border: 1px solid white;
+    border-radius: 4px;
 }
 
 .dd {
@@ -49,10 +65,10 @@ h2 {
 }
 
 
+.container {
 
-
-
-
+    display:inline-flex;
+}
 
 
 
@@ -104,6 +120,10 @@ h2 {
   box-shadow: none;
           color: #60db63;
       font-size: 25px;
+          width:200px;
+    background-color: #332d30;
+    height:20px;
+    padding-bottom:50px;
 }
 
 
@@ -113,4 +133,5 @@ h2 {
 .Select--multi .Select-value {
   color: #60db63;
   font-size: 30px;
+
 }
