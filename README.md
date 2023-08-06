@@ -1,7 +1,6 @@
 
 
 
-https://github.com/AriSky1/PeopleCounterApp/assets/105871709/75c602f7-9267-4241-a5fa-77d1c3c82ea3
 
 
 
@@ -12,4 +11,8 @@ I eventually made an app that counts pedestrians on videos. The user can provide
 Despite using fast models (YOLOv8, Background Substractor MOG2), the streams are quite slow.
 
 
+
+
+
+https://github.com/AriSky1/PeopleCounterApp/assets/105871709/fa9e629a-6dd3-4bf5-adfc-4b2ac8a78bf8
 
